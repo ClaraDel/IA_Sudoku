@@ -15,9 +15,11 @@ class Grille :
                 self.grille.append(0)
 
     # get the case of the grid with the coordinates "i" and "j"
-    def get_case(self,i, j):
+    def getCase(self, i, j):
         return i*self.taille + j
-
+    
+    def getIndice(self, case):
+        return case//self.taille, case%self.taille
 
 
     # main function of the program
@@ -76,7 +78,7 @@ class Grille :
         returnValues = []
         
         for case in selectedCases:
-            neighboursCase = fonctionAlex(case)
+            neighboursCase = self.getCaseConstraint(self.getIndice(case))
             sumNeighboursNull = 0
             
             for neighbours in neighboursCase :
@@ -107,13 +109,13 @@ class Grille :
                 
     def getDomainPossible(self, index):
         domainPossible = copy.deepcopy(self.domain)
-        neighboursCase = fonctionAlex(index) ;
+        neighboursCase = self.getCaseConstraint(self.getIndice(index))
         for i in neighboursCase:
             domainPossible.remove(self.grille[i])
         return domainPossible
 
 
-    def getCaseConstraint(self,grille,x,y):
+    def getCaseConstraint(self, x, y):
         cases = []
         for i in range(self.taille):
             if(i != x):
@@ -131,6 +133,6 @@ class Grille :
                     if (minY+i)!=y:
                         for j in range(nbColonne):
                             if (minX+j)!=x:
-                                cases.append((minX+j,minY+i))
+                                cases.append(self.getCase(minX+j,minY+i))
 
         return cases
