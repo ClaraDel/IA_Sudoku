@@ -9,8 +9,11 @@ class Grille :
             for j in range(4):
                 self.grille.append(0)
 
-    def backTracking(self, variable, valeurDomaine):
+    def backTracking(self, indiceChoisi, valeurDomaine):
+        
+        self.grille[indiceChoisi] = valeurDomaine
+
         for i in self.grille:
             if (self.grille[i] == 0):
                 for j in self.domaine:
-                    self.backTracking(self, self.grille[i], self.domaine[j])
+                    self.backTracking(self, i, self.domaine[j])
