@@ -18,25 +18,34 @@ class Grille :
 
 
 
-    # the main function of the program
-    def backTracking(self, currentIndexChosen, currentDomainValue):
-
-        # We assign the domainValue chosen by the previous "iteration" of backTracking to the chosen index
-        self.grille[currentIndexChosen] = currentDomainValue
+    # main function of the program
+    def backTracking(self):
 
         # We check the completion of the sudoku
         if (self.checkCompletion()):
-            print("You have won !")
+            return True
 
         # We get the list of index to explore and check if the value is equal to 0 (value not yet assigned)
-        for index in len(self.chooseIndexList()):
-            if (self.grille[index] == 0):
+        indexChosen =  self.chooseIndexList()
 
-                # Check if the domain value is possible for this index, if not, check for another value
-                for domainValue in len(self.domain):
-                    self.backTracking(self, index, self.domain[domainValue])
+        for currentDomainValue in len(self.domain):
 
-                    # If no value was found for this index, do : grille[currentIndexChosen] = 0
+            # --------------------
+            # If The value we want to assign is consistent with indexChosen, continue the program
+            # else, wait for another iteration of the for loop
+            # --------------------
+
+            self.grille[indexChosen] = currentDomainValue
+
+            result = self.backTracking(self)
+
+            if (result != False):
+                return result
+
+            # If it leads nowhere (failure), we put the value of the chosen index back to 0
+            self.grille[indexChosen] = 0
+
+        return False
 
 
 
@@ -45,7 +54,7 @@ class Grille :
         # Put here the heuristics
         return self.grille
 
-        
+
 
     # Checking the completion of the sudoku
     def checkCompletion(self):
@@ -55,3 +64,6 @@ class Grille :
                 sudokuCompleted = False
 
         return sudokuCompleted
+
+    def leastConstrainingValue(self, indexList):
+
