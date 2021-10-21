@@ -1,3 +1,5 @@
+import math
+
 class Grille :
 
     def __init__(self):
@@ -9,6 +11,7 @@ class Grille :
         for i in range(self.taille):
             for j in range(self.taille):
                 self.grille.append(0)
+
 
 
 
@@ -45,7 +48,7 @@ class Grille :
         # Put here the heuristics
         return self.grille
 
-        
+
 
     # Checking the completion of the sudoku
     def checkCompletion(self):
@@ -55,3 +58,29 @@ class Grille :
                 sudokuCompleted = False
 
         return sudokuCompleted
+
+
+
+
+
+    def getCaseConstraint(self,grille,x,y):
+        cases = []
+        for i in range(self.taille):
+            if(i != x):
+                cases.append((i,y))
+            if(i != y):
+                cases.append((x,i))
+
+        nbColonne = int(math.sqrt(self.taille))
+        moduloX = x%nbColonne
+        minX = x-x%nbColonne
+        minY = y-y%nbColonne
+        for posX in range(nbColonne):
+            if moduloX==posX:
+                for i in range(nbColonne):
+                    if (minY+i)!=y:
+                        for j in range(nbColonne):
+                            if (minX+j)!=x:
+                                cases.append((minX+j,minY+i))
+
+        return cases
