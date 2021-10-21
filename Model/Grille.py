@@ -1,19 +1,20 @@
 class Grille :
-    
+
     def __init__(self):
         # Création des 16 cases
+        self.taille = 4
         self.grille = []
-        self.domaine = [1,2,3,4,5,6,7,8,9]
+        self.domaine = list(range(1,self.taille+1))
 
-        for i in range(4):
-            for j in range(4):
+        for i in range(self.taille):
+            for j in range(self.taille):
                 self.grille.append(0)
-                
-    def get_case(i, j):
-        return i*4 + j
+
+    def get_case(self,i, j):
+        return i*self.taille + j
 
     def backTracking(self, indiceChoisi, valeurDomaine):
-        
+
         self.grille[indiceChoisi] = valeurDomaine
 
         for i in self.grille:
