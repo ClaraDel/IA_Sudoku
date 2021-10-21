@@ -13,9 +13,9 @@ class Grille :
     def get_case(self,i, j):
         return i*self.taille + j
 
-    def backTracking(self, indiceChoisi, valeurDomaine):
+    def backTracking(self, currentIndexChosen, currentDomainValue):
 
-        self.grille[indiceChoisi] = valeurDomaine
+        self.grille[currentIndexChosen] = currentDomainValue
 
         for index in self.chooseIndexList():
             if (self.grille[index] == 0):
