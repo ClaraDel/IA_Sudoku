@@ -32,7 +32,10 @@ class Grille :
         # We get the list of index to explore and check if the value is equal to 0 (value not yet assigned)
         indexChosen =  self.chooseIndexList()
 
-        for currentDomainValue in len(self.domain):
+        for i in len(self.domain):
+
+            # i begins at 0 and ends at len(self.domain) - 1
+            currentDomainValue = i+1
 
             # If The value we want to assign is consistent with indexChosen, continue the program
             # else, wait for another iteration of the for loop
@@ -55,7 +58,7 @@ class Grille :
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndexList(self):
         # Put here the heuristics
-        return self.grille
+        return 0
 
 
 
