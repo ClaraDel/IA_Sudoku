@@ -4,7 +4,7 @@ class Grille :
         # Création des 16 cases
         self.taille = 4
         self.grille = []
-        self.domaine = list(range(1,self.taille+1))
+        self.domain = list(range(1,self.taille+1))
 
         for i in range(self.taille):
             for j in range(self.taille):
@@ -17,10 +17,10 @@ class Grille :
 
         self.grille[indiceChoisi] = valeurDomaine
 
-        for i in self.grille:
-            if (self.grille[i] == 0):
-                for j in self.domaine:
-                    self.backTracking(self, i, self.domaine[j])
+        for index in self.chooseIndexList():
+            if (self.grille[index] == 0):
+                for domainValue in self.domain:
+                    self.backTracking(self, index, self.domain[domainValue])
 
     def chooseIndexList(self):
-        
+        return self.grille
