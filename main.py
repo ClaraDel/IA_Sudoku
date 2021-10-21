@@ -7,6 +7,6 @@ class Grille :
 
         for i in range(4):
             for j in range(4):
-                self.grille.append((0,0))
+                self.grille.append(0)
                 
         
