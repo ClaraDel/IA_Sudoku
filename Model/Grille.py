@@ -8,6 +8,9 @@ class Grille :
         for i in range(4):
             for j in range(4):
                 self.grille.append(0)
+                
+    def get_case(i, j):
+        return i*4 + j
 
     def backTracking(self, variable, valeurDomaine):
         for i in self.grille:
