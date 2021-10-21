@@ -17,10 +17,22 @@ class Grille :
 
         self.grille[currentIndexChosen] = currentDomainValue
 
-        for index in self.chooseIndexList():
+        if (self.checkCompletion()):
+            print("You have won !")
+
+        for index in len(self.chooseIndexList()):
             if (self.grille[index] == 0):
                 for domainValue in self.domain:
                     self.backTracking(self, index, self.domain[domainValue])
 
     def chooseIndexList(self):
+        # Put here the heuristics
         return self.grille
+
+    def checkCompletion(self):
+        sudokuCompleted = True
+        for i in self.grille:
+            if (self.grille[i] == 0):
+                sudokuCompleted = False
+
+        return sudokuCompleted
