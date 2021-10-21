@@ -21,3 +21,6 @@ class Grille :
             if (self.grille[i] == 0):
                 for j in self.domaine:
                     self.backTracking(self, i, self.domaine[j])
+
+    def chooseIndexList(self):
+        
