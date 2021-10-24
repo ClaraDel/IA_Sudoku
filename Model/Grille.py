@@ -24,6 +24,7 @@ class Grille :
                 else:
                     line += " |"
             print(line)
+        print("")
                 
 
     # get the case of the grid with the coordinates "i" and "j"
@@ -69,8 +70,7 @@ class Grille :
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
-        # Put here the heuristics
-        return 0
+        return self.MRV()[0]
 
 
 
@@ -123,15 +123,15 @@ class Grille :
     def MRV(self) :
         minTaille = self.taille
         returnValues = []
-        for i in self.length:
+        for i in range(self.length):
             if (self.grille[i] == 0): 
                 domainPossible = self.getDomainPossible(i)
                 if len(domainPossible) == minTaille:
-                    returnValues.add(i)
+                    returnValues.append(i)
                 if len(domainPossible) < minTaille:
                     minTaille = len(domainPossible)
                     returnValues = []
-                    returnValues.add(i)
+                    returnValues.append(i)
         return returnValues
                     
                 
@@ -140,7 +140,8 @@ class Grille :
         i, j = self.getIndice(index)
         neighboursCase = self.getCaseConstraint(i, j)
         for i in neighboursCase:
-            domainPossible.remove(self.grille[i])
+            if(self.grille[i] in domainPossible):
+                domainPossible.remove(self.grille[i])
         return domainPossible
 
 
