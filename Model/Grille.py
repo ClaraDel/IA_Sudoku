@@ -1,11 +1,12 @@
 import copy
 import math
+import time
 
 class Grille :
 
     def __init__(self):
         # Création des 16 cases
-        self.taille = 4
+        self.taille = 9
         self.length = self.taille*self.taille
         self.grille = []
         self.domain = list(range(1,self.taille+1))
@@ -17,13 +18,18 @@ class Grille :
 
     def printSudoku(self):
         for i in range(self.taille):
-            line = "|"
+            if(i%math.sqrt(self.taille) == 0):
+                print("")
+            line = ""
             for j in range(self.taille):
+                if(j%math.sqrt(self.taille) == 0):
+                    line += " "
                 if(self.grille[self.getCase(i, j)] != 0):
                     line += str(self.grille[self.getCase(i, j)]) + "|"
                 else:
                     line += " |"
             print(line)
+        print("")
                 
 
     # get the case of the grid with the coordinates "i" and "j"
@@ -36,7 +42,7 @@ class Grille :
 
     # main function of the program
     def backTracking(self):
-
+        #time.sleep(1)
         # We check the completion of the sudoku
         if (self.checkCompletion()):
             return True
@@ -52,25 +58,43 @@ class Grille :
             # If The value we want to assign is consistent with indexChosen, continue the program
             # else, wait for another iteration of the for loop
             if (self.checkConsistency(indexChosen, currentDomainValue)):
+                
+                if(self.forwardChecking(indexChosen, currentDomainValue)):
+                    self.grille[indexChosen] = currentDomainValue
 
-                self.grille[indexChosen] = currentDomainValue
+                    result = self.backTracking()
 
-                result = self.backTracking()
+                    if (result != False):
+                        return result
 
-                if (result != False):
-                    return result
-
-                # If it leads nowhere (failure), we put the value of the chosen index back to 0
-                self.grille[indexChosen] = 0
+                    # If it leads nowhere (failure), we put the value of the chosen index back to 0
+                    self.grille[indexChosen] = 0
+                else:
+                    self.printSudoku()
+                    print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
+                    return False
 
         return False
 
 
+    def forwardChecking(self, index, value):
+        i, j = self.getIndice(index)
+        casesWithConstraint = self.getCaseConstraint(i, j)
+        for case in casesWithConstraint:
+            domains = self.getDomainPossible(case)
+            if(value in domains):
+                domains.remove(value)
+            if(len(domains) == 0):
+                print(str(self.getIndice(case)) + " will be blocked !")
+                return False
+        return True
+
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
-        # Put here the heuristics
-        return 0
+        #self.printSudoku()
+        #print(self.degreeHeuristic()[0])
+        return self.degreeHeuristic(self.MRV())[0]
 
 
 
@@ -157,11 +181,11 @@ class Grille :
 
 
         
-    def degreeHeuristic(self) :
-        selectedCases = []
-        for i in self.length:
-            if (self.grille[i] == 0): 
-                selectedCases.add(i)
+    def degreeHeuristic(self, selectedCases) :
+        #selectedCases = []
+        #for i in range(self.length):
+        #    if (self.grille[i] == 0): 
+        #        selectedCases.append(i)
         maxSum = 0
         returnValues = []
         
@@ -174,26 +198,25 @@ class Grille :
                 if self.grille[neighbours] == 0:
                     sumNeighboursNull += 1
             if sumNeighboursNull == maxSum:
-                returnValues.add(case)
+                returnValues.append(case)
             if(sumNeighboursNull > maxSum):
                 maxSum = sumNeighboursNull
                 returnValues = []
-                returnValues.add(case)
+                returnValues.append(case)
         return returnValues
                     
-
     def MRV(self) :
         minTaille = self.taille
         returnValues = []
-        for i in self.length:
+        for i in range(self.length):
             if (self.grille[i] == 0): 
                 domainPossible = self.getDomainPossible(i)
                 if len(domainPossible) == minTaille:
-                    returnValues.add(i)
+                    returnValues.append(i)
                 if len(domainPossible) < minTaille:
                     minTaille = len(domainPossible)
                     returnValues = []
-                    returnValues.add(i)
+                    returnValues.append(i)
         return returnValues
                     
 
@@ -202,7 +225,8 @@ class Grille :
         i, j = self.getIndice(index)
         neighboursCase = self.getCaseConstraint(i, j)
         for i in neighboursCase:
-            domainPossible.remove(self.grille[i])
+            if(self.grille[i] in domainPossible):
+                domainPossible.remove(self.grille[i])
         return domainPossible
 
 
@@ -230,6 +254,7 @@ class Grille :
 
 
 sudoku = Grille()
+print(sudoku.getIndice(1))
 sudoku.printSudoku()
 sudoku.backTracking()
 sudoku.printSudoku()
