@@ -74,7 +74,8 @@ class Grille :
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
-        return self.MRV()[0]
+        print(self.degreeHeuristic()[0])
+        return self.degreeHeuristic()[0]
 
 
 
@@ -102,9 +103,9 @@ class Grille :
         
     def degreeHeuristic(self) :
         selectedCases = []
-        for i in self.length:
+        for i in range(self.length):
             if (self.grille[i] == 0): 
-                selectedCases.add(i)
+                selectedCases.append(i)
         maxSum = 0
         returnValues = []
         
@@ -117,13 +118,13 @@ class Grille :
                 if self.grille[neighbours] == 0:
                     sumNeighboursNull += 1
             if sumNeighboursNull == maxSum:
-                returnValues.add(case)
+                returnValues.append(case)
             if(sumNeighboursNull > maxSum):
                 maxSum = sumNeighboursNull
                 returnValues = []
-                returnValues.add(case)
+                returnValues.append(case)
         return returnValues
-                    
+
     def MRV(self) :
         minTaille = self.taille
         returnValues = []
