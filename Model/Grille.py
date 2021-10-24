@@ -41,7 +41,7 @@ class Grille :
         if (self.checkCompletion()):
             return True
 
-        # We get the list of index to explore and check if the value is equal to 0 (value not yet assigned)
+        # We get the list of index to explore
         indexChosen =  self.chooseIndex()
 
         for i in range(len(self.domain)):
@@ -95,6 +95,67 @@ class Grille :
         return consistencyOk
 
 
+    def leastConstrainingValue(self, indexChosen):
+
+        # Array containing the number of possible values for future variables, given a value
+        numberOfCaseConstrainedByDomainValue = []
+
+        # Array to return
+        leastConstrainingValueDomain = []
+
+        for i in range(len(self.domain)):
+
+            # i begins at 0 and ends at len(self.domain) - 1
+            currentDomainValue = i+1
+
+            # If The value we want to assign is consistent with indexChosen, continue the program
+            # else, wait for another iteration of the for loop
+            if (self.checkConsistency(indexChosen, currentDomainValue)):
+
+                # We put this temporary value to find the number of case constrained by this value
+                self.grille[indexChosen] = currentDomainValue 
+
+                # We get the neighbours of the current case
+                neighboursOfChosenIndex = self.getCaseConstraint(self.getIndice(indexChosen))
+
+                # for each neighbour, we want to see if it's already constrained by another neighbour
+                # which contains the same value as currentDomainValue (if so, it won't change the number of possible values for this neighbour )
+                for neighbour in neighboursOfChosenIndex:
+
+                    alreadyConstrainedByOtherCase = False
+
+                    # We get the neighbours of the chosen value's neighbours
+                    neighboursOfNeighbours = self.getCaseConstraint(self.getIndice(neighbour))
+
+                    for neighbourOfNeighbour in neighboursOfNeighbours:
+
+                        if (i == self.grille[neighbourOfNeighbour]):
+                            alreadyConstrainedByOtherCase = True
+                    
+                    # If the neighbour is not constrained by another neighbour, our currentDomainValue is affecting its number of possible values
+                    if (not alreadyConstrainedByOtherCase):
+                        numberOfCaseConstrainedByDomainValue[i] += 1
+
+                # We want to revert the change to the grid, so that we can test with another value
+                self.grille[indexChosen] = 0
+        
+        for i in range(len(numberOfCaseConstrainedByDomainValue)):
+
+            # Index of the maximum number of values possible for future variables
+            indexOfMinimumCaseConstrained = numberOfCaseConstrainedByDomainValue.index(min(numberOfCaseConstrainedByDomainValue))
+
+            # we want a value contained in [1,9] (indexOfMaximumNumberOfValuePossible is in [0,8])
+            leastConstrainingValue = indexOfMinimumCaseConstrained + 1
+
+            # We put the value which allows the maximum number of values possible for other variables in front of the others
+            leastConstrainingValueDomain[i] = leastConstrainingValue
+
+            # To ensure we don't evaluate the same index again, we put the value contained to infinity
+            numberOfCaseConstrainedByDomainValue[indexOfMinimumCaseConstrained] = float('inf')
+        
+        return leastConstrainingValueDomain
+
+
         
     def degreeHeuristic(self) :
         selectedCases = []
@@ -120,6 +181,7 @@ class Grille :
                 returnValues.add(case)
         return returnValues
                     
+
     def MRV(self) :
         minTaille = self.taille
         returnValues = []
@@ -134,7 +196,7 @@ class Grille :
                     returnValues.add(i)
         return returnValues
                     
-                
+
     def getDomainPossible(self, index):
         domainPossible = copy.deepcopy(self.domain)
         i, j = self.getIndice(index)
