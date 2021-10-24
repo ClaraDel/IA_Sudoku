@@ -5,7 +5,7 @@ class Grille :
 
     def __init__(self):
         # Création des 16 cases
-        self.taille = 4
+        self.taille = 9
         self.length = self.taille*self.taille
         self.grille = []
         self.domain = list(range(1,self.taille+1))
@@ -17,8 +17,12 @@ class Grille :
 
     def printSudoku(self):
         for i in range(self.taille):
-            line = "|"
+            if(i%math.sqrt(self.taille) == 0):
+                print("")
+            line = ""
             for j in range(self.taille):
+                if(j%math.sqrt(self.taille) == 0):
+                    line += " "
                 if(self.grille[self.getCase(i, j)] != 0):
                     line += str(self.grille[self.getCase(i, j)]) + "|"
                 else:
