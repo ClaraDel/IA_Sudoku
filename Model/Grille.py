@@ -1,5 +1,6 @@
 import copy
 import math
+import time
 
 class Grille :
 
@@ -41,7 +42,7 @@ class Grille :
 
     # main function of the program
     def backTracking(self):
-
+        #time.sleep(1)
         # We check the completion of the sudoku
         if (self.checkCompletion()):
             return True
@@ -57,25 +58,43 @@ class Grille :
             # If The value we want to assign is consistent with indexChosen, continue the program
             # else, wait for another iteration of the for loop
             if (self.checkConsistency(indexChosen, currentDomainValue)):
+                
+                if(self.forwardChecking(indexChosen, currentDomainValue)):
+                    self.grille[indexChosen] = currentDomainValue
 
-                self.grille[indexChosen] = currentDomainValue
+                    result = self.backTracking()
 
-                result = self.backTracking()
+                    if (result != False):
+                        return result
 
-                if (result != False):
-                    return result
-
-                # If it leads nowhere (failure), we put the value of the chosen index back to 0
-                self.grille[indexChosen] = 0
+                    # If it leads nowhere (failure), we put the value of the chosen index back to 0
+                    self.grille[indexChosen] = 0
+                else:
+                    self.printSudoku()
+                    print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
+                    return False
 
         return False
 
 
+    def forwardChecking(self, index, value):
+        i, j = self.getIndice(index)
+        casesWithConstraint = self.getCaseConstraint(i, j)
+        for case in casesWithConstraint:
+            domains = self.getDomainPossible(case)
+            if(value in domains):
+                domains.remove(value)
+            if(len(domains) == 0):
+                print(str(self.getIndice(case)) + " will be blocked !")
+                return False
+        return True
+
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
-        print(self.degreeHeuristic()[0])
-        return self.degreeHeuristic()[0]
+        #self.printSudoku()
+        #print(self.degreeHeuristic()[0])
+        return self.degreeHeuristic(self.MRV())[0]
 
 
 
@@ -101,11 +120,11 @@ class Grille :
 
 
         
-    def degreeHeuristic(self) :
-        selectedCases = []
-        for i in range(self.length):
-            if (self.grille[i] == 0): 
-                selectedCases.append(i)
+    def degreeHeuristic(self, selectedCases) :
+        #selectedCases = []
+        #for i in range(self.length):
+        #    if (self.grille[i] == 0): 
+        #        selectedCases.append(i)
         maxSum = 0
         returnValues = []
         
@@ -174,6 +193,7 @@ class Grille :
 
 
 sudoku = Grille()
+print(sudoku.getIndice(1))
 sudoku.printSudoku()
 sudoku.backTracking()
 sudoku.printSudoku()
