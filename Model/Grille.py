@@ -13,6 +13,18 @@ class Grille :
         for i in range(self.taille):
             for j in range(self.taille):
                 self.grille.append(0)
+                
+
+    def printSudoku(self):
+        for i in range(self.taille):
+            line = "|"
+            for j in range(self.taille):
+                if(self.grille[self.getCase(i, j)] != 0):
+                    line += str(self.grille[self.getCase(i, j)]) + "|"
+                else:
+                    line += " |"
+            print(line)
+                
 
     # get the case of the grid with the coordinates "i" and "j"
     def getCase(self, i, j):
@@ -32,7 +44,7 @@ class Grille :
         # We get the list of index to explore and check if the value is equal to 0 (value not yet assigned)
         indexChosen =  self.chooseIndexList()
 
-        for i in len(self.domain):
+        for i in range(len(self.domain)):
 
             # i begins at 0 and ends at len(self.domain) - 1
             currentDomainValue = i+1
@@ -43,7 +55,7 @@ class Grille :
 
                 self.grille[indexChosen] = currentDomainValue
 
-                result = self.backTracking(self)
+                result = self.backTracking()
 
                 if (result != False):
                     return result
@@ -65,7 +77,7 @@ class Grille :
     # Checking the completion of the sudoku
     def checkCompletion(self):
         sudokuCompleted = True
-        for i in self.length:
+        for i in range(self.length):
             if (self.grille[i] == 0):
                 sudokuCompleted = False
 
@@ -75,14 +87,12 @@ class Grille :
 
     def checkConsistency(self, currentCase, valueToTest):
         consistencyOk = True
-        casesWithConstraint = self.getCaseConstraint(self.getIndice(currentCase))
+        i, j = self.getIndice(currentCase)
+        casesWithConstraint = self.getCaseConstraint(i, j)
         for case in casesWithConstraint:
             if (self.grille[case] == valueToTest):
                 consistencyOk = False
         return consistencyOk
-
-
-
 
 
         
@@ -95,7 +105,8 @@ class Grille :
         returnValues = []
         
         for case in selectedCases:
-            neighboursCase = self.getCaseConstraint(self.getIndice(case))
+            i, j = self.getIndice(case)
+            neighboursCase = self.getCaseConstraint(i, j)
             sumNeighboursNull = 0
             
             for neighbours in neighboursCase :
@@ -126,7 +137,8 @@ class Grille :
                 
     def getDomainPossible(self, index):
         domainPossible = copy.deepcopy(self.domain)
-        neighboursCase = self.getCaseConstraint(self.getIndice(index))
+        i, j = self.getIndice(index)
+        neighboursCase = self.getCaseConstraint(i, j)
         for i in neighboursCase:
             domainPossible.remove(self.grille[i])
         return domainPossible
@@ -136,9 +148,9 @@ class Grille :
         cases = []
         for i in range(self.taille):
             if(i != x):
-                cases.append((i,y))
+                cases.append(self.getCase(i,y))
             if(i != y):
-                cases.append((x,i))
+                cases.append(self.getCase(x,i))
 
         nbColonne = int(math.sqrt(self.taille))
         moduloX = x%nbColonne
@@ -153,3 +165,9 @@ class Grille :
                                 cases.append(self.getCase(minX+j,minY+i))
 
         return cases
+
+
+sudoku = Grille()
+sudoku.printSudoku()
+sudoku.backTracking()
+sudoku.printSudoku()
