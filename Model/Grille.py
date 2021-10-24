@@ -1,6 +1,7 @@
 import copy
 import math
 import time
+from Case import *
 
 class Grille :
 
@@ -9,11 +10,14 @@ class Grille :
         self.taille = 9
         self.length = self.taille*self.taille
         self.grille = []
+        self.domainsBrain = []
         self.domain = list(range(1,self.taille+1))
 
         for i in range(self.taille):
             for j in range(self.taille):
-                self.grille.append(0)
+                newCase = Case(0, copy.copy(self.domain))
+                self.grille.append(newCase)
+        
                 
 
     def printSudoku(self):
@@ -24,8 +28,8 @@ class Grille :
             for j in range(self.taille):
                 if(j%math.sqrt(self.taille) == 0):
                     line += " "
-                if(self.grille[self.getCase(i, j)] != 0):
-                    line += str(self.grille[self.getCase(i, j)]) + "|"
+                if(self.grille[self.getCase(i, j)].getValue() != 0):
+                    line += str(self.grille[self.getCase(i, j)].getValue()) + "|"
                 else:
                     line += " |"
             print(line)
@@ -60,7 +64,11 @@ class Grille :
             if (self.checkConsistency(indexChosen, currentDomainValue)):
                 
                 if(self.forwardChecking(indexChosen, currentDomainValue)):
-                    self.grille[indexChosen] = currentDomainValue
+                    self.grille[indexChosen].setValue(currentDomainValue)
+                    x, y =self.getIndice(indexChosen)
+                    constraints = self.getCaseConstraint(x, y)
+                    for constraint in constraints:
+                        self.grille[constraint].removeFromDomain(currentDomainValue)
 
                     result = self.backTracking()
 
@@ -68,7 +76,12 @@ class Grille :
                         return result
 
                     # If it leads nowhere (failure), we put the value of the chosen index back to 0
-                    self.grille[indexChosen] = 0
+                    self.grille[indexChosen].setValue(0)
+                    
+                    x, y =self.getIndice(indexChosen)
+                    constraints = self.getCaseConstraint(x, y)
+                    for constraint in constraints:
+                        self.grille[constraint].addToDomain(currentDomainValue)
                 else:
                     self.printSudoku()
                     print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
@@ -89,6 +102,30 @@ class Grille :
                 return False
         return True
 
+    
+    def AC3(self, index, value):
+        grilleCopy = copy.deepcopy(self.grille)
+        x, y = self.getIndice(index)
+        constraints = self.getCaseConstraint(x, y)
+        
+        constraintsCouple = []
+        for constraint in constraints:  
+            if(grilleCopy[constraint].getValue() == 0):
+                constraintsCouple.append((constraint, value))
+        
+        while len(constraintsCouple) != 0:
+            constraint = constraintsCouple.pop()
+            if(grilleCopy[constraint[0]].removeFromDomain(constraint[1])):
+            
+                constraintDomain = grilleCopy[constraint[0]].getDomain()
+                if(len(constraintDomain) == 1):
+                    x, y = self.getIndice(constraint[0])
+                    for newConstraint in self.getCaseConstraint(x, y):
+                        if(grilleCopy[newConstraint].getValue() == 0):
+                            constraintsCouple.append((newConstraint, constraintDomain[0]))
+                elif(len(constraintDomain) == 0):
+                    return False
+        return True
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
@@ -102,7 +139,7 @@ class Grille :
     def checkCompletion(self):
         sudokuCompleted = True
         for i in range(self.length):
-            if (self.grille[i] == 0):
+            if (self.grille[i].getValue() == 0):
                 sudokuCompleted = False
 
         return sudokuCompleted
@@ -114,7 +151,7 @@ class Grille :
         i, j = self.getIndice(currentCase)
         casesWithConstraint = self.getCaseConstraint(i, j)
         for case in casesWithConstraint:
-            if (self.grille[case] == valueToTest):
+            if (self.grille[case].getValue() == valueToTest):
                 consistencyOk = False
         return consistencyOk
 
@@ -123,7 +160,7 @@ class Grille :
     def degreeHeuristic(self, selectedCases) :
         #selectedCases = []
         #for i in range(self.length):
-        #    if (self.grille[i] == 0): 
+        #    if (self.grille[i].getValue() == 0): 
         #        selectedCases.append(i)
         maxSum = 0
         returnValues = []
@@ -134,7 +171,7 @@ class Grille :
             sumNeighboursNull = 0
             
             for neighbours in neighboursCase :
-                if self.grille[neighbours] == 0:
+                if self.grille[neighbours].getValue() == 0:
                     sumNeighboursNull += 1
             if sumNeighboursNull == maxSum:
                 returnValues.append(case)
@@ -148,7 +185,7 @@ class Grille :
         minTaille = self.taille
         returnValues = []
         for i in range(self.length):
-            if (self.grille[i] == 0): 
+            if (self.grille[i].getValue() == 0): 
                 domainPossible = self.getDomainPossible(i)
                 if len(domainPossible) == minTaille:
                     returnValues.append(i)
@@ -160,14 +197,17 @@ class Grille :
                     
                 
     def getDomainPossible(self, index):
-        domainPossible = copy.deepcopy(self.domain)
-        i, j = self.getIndice(index)
-        neighboursCase = self.getCaseConstraint(i, j)
-        for i in neighboursCase:
-            if(self.grille[i] in domainPossible):
-                domainPossible.remove(self.grille[i])
-        return domainPossible
-
+        return self.grille[index].getDomain()
+# =============================================================================
+#         domainPossible = copy.deepcopy(self.domain)
+#         i, j = self.getIndice(index)
+#         neighboursCase = self.getCaseConstraint(i, j)
+#         for i in neighboursCase:
+#             if(self.grille[i].getValue() in domainPossible):
+#                 domainPossible.remove(self.grille[i].getValue())
+#         return domainPossible
+# 
+# =============================================================================
 
     def getCaseConstraint(self, x, y):
         cases = []
