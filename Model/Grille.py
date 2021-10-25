@@ -1,22 +1,28 @@
 import copy
 import math
 import time
-from Case import *
+from Case import Case
 
 class Grille :
 
     def __init__(self):
-        # Création des 16 cases
-        self.taille = 12
+       # Taille des sudoku
+        self.taille = 9
         self.length = self.taille*self.taille
+        
+        # Le sudoku
         self.grille = []
+        
+        # ???
         self.domainsBrain = []
+        
+        # Domaine possible pour chaque variable
         self.domain = list(range(1,self.taille+1))
 
-        for i in range(self.taille):
-            for j in range(self.taille):
-                newCase = Case(0, copy.copy(self.domain))
-                self.grille.append(newCase)
+        # Création du sudoku
+        for i in range(self.length):
+            newCase = Case(0, copy.copy(self.domain))
+            self.grille.append(newCase)
         
                 
 
@@ -46,15 +52,16 @@ class Grille :
 
     # main function of the program
     def backTracking(self):
-        #time.sleep(1)
+        time.sleep(5)
         # We check the completion of the sudoku
         if (self.checkCompletion()):
             return True
 
         # We get the list of index to explore
         indexChosen =  self.chooseIndex()
-
-        for currentDomainValue in (self.leastConstrainingValue(indexChosen)):
+        
+        domainPossible = self.LCV(indexChosen)
+        for currentDomainValue in domainPossible:
 
             if (currentDomainValue != float('inf')):
                 
@@ -64,7 +71,7 @@ class Grille :
                     constraints = self.getCaseConstraint(x, y)
                     for constraint in constraints:
                         self.grille[constraint].removeFromDomain(currentDomainValue)
-
+                    self.printSudoku()
                     result = self.backTracking()
 
                     if (result != False):
@@ -81,7 +88,7 @@ class Grille :
                     self.printSudoku()
                     print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
                     return False
-
+        
         return False
 
 
@@ -150,6 +157,34 @@ class Grille :
                 consistencyOk = False
         return consistencyOk
 
+
+
+    def LCV(self, indexChosen):
+        valueImpact = {}
+        print("case :",indexChosen )
+        
+        #Parcours des valeurs possibles dans cette case
+        for i in self.grille[indexChosen].getDomain():
+            print("value :",i )
+            # k est le nombre de voisin ayant la valeur dans leur domaine
+            k=0
+            
+            # Parcours des voisins et incrément si la valeur i est dans le domaine de ceux ci
+            # c-a-d le nombre de voisins que l'on va contraindre avec cette valeur
+            for neighbour in self.getCaseConstraint(self.getIndice(indexChosen)[0],self.getIndice(indexChosen)[1]):
+                if self.grille[neighbour].getValue() == 0:
+                    print("voisin :",neighbour," domaine : ",self.grille[neighbour].getDomain())
+                    if(i in self.grille[neighbour].getDomain()):
+                        k+=1
+            # Mise en mémoire
+            valueImpact[i]=k
+        
+        # Envoie des valeurs possibles à partir des valeurs trouvées
+        x = dict(sorted(valueImpact.items(), key=lambda item: item[1]))
+        
+        print(x)
+        return list(x.keys())
+                    
 
     def leastConstrainingValue(self, indexChosen):
 
@@ -302,7 +337,7 @@ class Grille :
 
 
 sudoku = Grille()
-print(sudoku.getIndice(1))
 sudoku.printSudoku()
 sudoku.backTracking()
-sudoku.printSudoku()
+#print(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1])
+#print(sudoku.getCaseConstraint(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1]))
