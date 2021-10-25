@@ -6,7 +6,7 @@ class Grille :
 
     def __init__(self):
         # Création des 16 cases
-        self.taille = 9
+        self.taille = 12
         self.length = self.taille*self.taille
         self.grille = []
         self.domain = list(range(1,self.taille+1))
@@ -50,14 +50,9 @@ class Grille :
         # We get the list of index to explore
         indexChosen =  self.chooseIndex()
 
-        for i in range(len(self.domain)):
+        for currentDomainValue in (self.leastConstrainingValue(indexChosen)):
 
-            # i begins at 0 and ends at len(self.domain) - 1
-            currentDomainValue = i+1
-
-            # If The value we want to assign is consistent with indexChosen, continue the program
-            # else, wait for another iteration of the for loop
-            if (self.checkConsistency(indexChosen, currentDomainValue)):
+            if (currentDomainValue != float('inf')):
                 
                 if(self.forwardChecking(indexChosen, currentDomainValue)):
                     self.grille[indexChosen] = currentDomainValue
@@ -121,7 +116,7 @@ class Grille :
 
     def leastConstrainingValue(self, indexChosen):
 
-        # Array containing the number of possible values for future variables, given a value
+        # Array containing the number of neighbours constrained given a value
         numberOfCaseConstrainedByDomainValue = []
 
         # Array to return
@@ -136,33 +131,46 @@ class Grille :
             # else, wait for another iteration of the for loop
             if (self.checkConsistency(indexChosen, currentDomainValue)):
 
+                numberOfCaseConstrained = 0
+
                 # We put this temporary value to find the number of case constrained by this value
                 self.grille[indexChosen] = currentDomainValue 
 
+                coordinatesOfChosenIndex = self.getIndice(indexChosen)
+
                 # We get the neighbours of the current case
-                neighboursOfChosenIndex = self.getCaseConstraint(self.getIndice(indexChosen))
+                neighboursOfChosenIndex = self.getCaseConstraint(coordinatesOfChosenIndex[0], coordinatesOfChosenIndex[1])
 
                 # for each neighbour, we want to see if it's already constrained by another neighbour
                 # which contains the same value as currentDomainValue (if so, it won't change the number of possible values for this neighbour )
                 for neighbour in neighboursOfChosenIndex:
 
-                    alreadyConstrainedByOtherCase = False
+                    if (self.grille[neighbour] != 0):
 
-                    # We get the neighbours of the chosen value's neighbours
-                    neighboursOfNeighbours = self.getCaseConstraint(self.getIndice(neighbour))
+                        alreadyConstrainedByOtherCase = False
 
-                    for neighbourOfNeighbour in neighboursOfNeighbours:
+                        coordinatesOfNeighbour = self.getIndice(neighbour)
 
-                        if (i == self.grille[neighbourOfNeighbour]):
-                            alreadyConstrainedByOtherCase = True
-                    
-                    # If the neighbour is not constrained by another neighbour, our currentDomainValue is affecting its number of possible values
-                    if (not alreadyConstrainedByOtherCase):
-                        numberOfCaseConstrainedByDomainValue[i] += 1
+                        # We get the neighbours of the chosen value's neighbours
+                        neighboursOfNeighbours = self.getCaseConstraint(coordinatesOfNeighbour[0], coordinatesOfNeighbour[1])
+
+                        for neighbourOfNeighbour in neighboursOfNeighbours:
+
+                            if (i == self.grille[neighbourOfNeighbour]):
+                                alreadyConstrainedByOtherCase = True
+                        
+                        # If the neighbour is not constrained by another neighbour, our currentDomainValue is affecting its number of possible values
+                        if (not alreadyConstrainedByOtherCase):
+                            numberOfCaseConstrained += 1
 
                 # We want to revert the change to the grid, so that we can test with another value
                 self.grille[indexChosen] = 0
-        
+
+                numberOfCaseConstrainedByDomainValue.append(numberOfCaseConstrained)
+
+            else:
+                numberOfCaseConstrainedByDomainValue.append(float('inf'))
+
         for i in range(len(numberOfCaseConstrainedByDomainValue)):
 
             # Index of the maximum number of values possible for future variables
@@ -172,7 +180,7 @@ class Grille :
             leastConstrainingValue = indexOfMinimumCaseConstrained + 1
 
             # We put the value which allows the maximum number of values possible for other variables in front of the others
-            leastConstrainingValueDomain[i] = leastConstrainingValue
+            leastConstrainingValueDomain.append(leastConstrainingValue)
 
             # To ensure we don't evaluate the same index again, we put the value contained to infinity
             numberOfCaseConstrainedByDomainValue[indexOfMinimumCaseConstrained] = float('inf')
