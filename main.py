@@ -7,8 +7,8 @@ def main():
     print("Quelle taille de sudoku voulez-vous résoudre ?")
     lancerJeu = False
     while(lancerJeu == False) :
-        entree = int(input("Tapez 1 pour 4x4 \nTapez 2 pour 9x9\nTapez 3 pour 16x16\nTapez 4 pour quitter\n"))
         print("Attention au sudoku de départ renseigné dans sudoku.txt en prenant la taille !")
+        entree = int(input("Tapez 1 pour 4x4 \nTapez 2 pour 9x9\nTapez 3 pour 16x16\nTapez 4 pour quitter\n"))
         if(entree == 1):
             taille = 4
             lancerJeu = True
