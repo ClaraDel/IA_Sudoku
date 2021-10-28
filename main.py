@@ -25,8 +25,11 @@ def main():
         
     if (lancerJeu):
         sudoku = Grille(taille)
+        print("\nSudoku de départ :")
         sudoku.printSudoku()
+        print("--------------------\n")
         sudoku.backTracking()
+        print("Sudoku de fin :")
         sudoku.printSudoku()
 
 if __name__ == "__main__":
