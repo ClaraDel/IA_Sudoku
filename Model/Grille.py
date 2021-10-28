@@ -23,6 +23,23 @@ class Grille :
         for i in range(self.length):
             newCase = Case(0, copy.copy(self.domain))
             self.grille.append(newCase)
+
+        file = open('sudoku.txt', 'r')
+        gridIndex = 0
+
+        while 1:
+     
+            # read by character
+            char = file.read(1)
+
+            if not char:
+                break
+
+            if (char != '\n'):
+                self.grille[gridIndex].setValue(char)
+                gridIndex += 1
+        
+        file.close()
         
                 
 
@@ -40,19 +57,22 @@ class Grille :
                     line += " |"
             print(line)
         print("")
-                
+
+
 
     # get the case of the grid with the coordinates "i" and "j"
     def getCase(self, i, j):
         return i*self.taille + j
     
+
+
     def getIndice(self, case):
         return case//self.taille, case%self.taille
 
 
+
     # main function of the program
     def backTracking(self):
-        time.sleep(5)
         # We check the completion of the sudoku
         if (self.checkCompletion()):
             return True
@@ -92,6 +112,7 @@ class Grille :
         return False
 
 
+
     def forwardChecking(self, index, value):
         i, j = self.getIndice(index)
         casesWithConstraint = self.getCaseConstraint(i, j)
@@ -105,6 +126,7 @@ class Grille :
         return True
 
     
+
     def AC3(self, index, value):
         grilleCopy = copy.deepcopy(self.grille)
         x, y = self.getIndice(index)
@@ -128,6 +150,8 @@ class Grille :
                 elif(len(constraintDomain) == 0):
                     return False
         return True
+
+
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
@@ -186,80 +210,6 @@ class Grille :
         return list(x.keys())
                     
 
-    def leastConstrainingValue(self, indexChosen):
-
-        # Array containing the number of neighbours constrained given a value
-        numberOfCaseConstrainedByDomainValue = []
-
-        # Array to return
-        leastConstrainingValueDomain = []
-
-        for i in range(len(self.domain)):
-
-            # i begins at 0 and ends at len(self.domain) - 1
-            currentDomainValue = i+1
-
-            # If The value we want to assign is consistent with indexChosen, continue the program
-            # else, wait for another iteration of the for loop
-            if (self.checkConsistency(indexChosen, currentDomainValue)):
-
-                numberOfCaseConstrained = 0
-
-                # We put this temporary value to find the number of case constrained by this value
-                self.grille[indexChosen] = currentDomainValue 
-
-                coordinatesOfChosenIndex = self.getIndice(indexChosen)
-
-                # We get the neighbours of the current case
-                neighboursOfChosenIndex = self.getCaseConstraint(coordinatesOfChosenIndex[0], coordinatesOfChosenIndex[1])
-
-                # for each neighbour, we want to see if it's already constrained by another neighbour
-                # which contains the same value as currentDomainValue (if so, it won't change the number of possible values for this neighbour )
-                for neighbour in neighboursOfChosenIndex:
-
-                    if (self.grille[neighbour] != 0):
-
-                        alreadyConstrainedByOtherCase = False
-
-                        coordinatesOfNeighbour = self.getIndice(neighbour)
-
-                        # We get the neighbours of the chosen value's neighbours
-                        neighboursOfNeighbours = self.getCaseConstraint(coordinatesOfNeighbour[0], coordinatesOfNeighbour[1])
-
-                        for neighbourOfNeighbour in neighboursOfNeighbours:
-
-                            if (i == self.grille[neighbourOfNeighbour]):
-                                alreadyConstrainedByOtherCase = True
-                        
-                        # If the neighbour is not constrained by another neighbour, our currentDomainValue is affecting its number of possible values
-                        if (not alreadyConstrainedByOtherCase):
-                            numberOfCaseConstrained += 1
-
-                # We want to revert the change to the grid, so that we can test with another value
-                self.grille[indexChosen] = 0
-
-                numberOfCaseConstrainedByDomainValue.append(numberOfCaseConstrained)
-
-            else:
-                numberOfCaseConstrainedByDomainValue.append(float('inf'))
-
-        for i in range(len(numberOfCaseConstrainedByDomainValue)):
-
-            # Index of the maximum number of values possible for future variables
-            indexOfMinimumCaseConstrained = numberOfCaseConstrainedByDomainValue.index(min(numberOfCaseConstrainedByDomainValue))
-
-            # we want a value contained in [1,9] (indexOfMaximumNumberOfValuePossible is in [0,8])
-            leastConstrainingValue = indexOfMinimumCaseConstrained + 1
-
-            # We put the value which allows the maximum number of values possible for other variables in front of the others
-            leastConstrainingValueDomain.append(leastConstrainingValue)
-
-            # To ensure we don't evaluate the same index again, we put the value contained to infinity
-            numberOfCaseConstrainedByDomainValue[indexOfMinimumCaseConstrained] = float('inf')
-        
-        return leastConstrainingValueDomain
-
-
         
     def degreeHeuristic(self, selectedCases) :
         #selectedCases = []
@@ -285,6 +235,8 @@ class Grille :
                 returnValues.append(case)
         return returnValues
                     
+
+
     def MRV(self) :
         minTaille = self.taille
         returnValues = []
@@ -298,7 +250,8 @@ class Grille :
                     returnValues = []
                     returnValues.append(i)
         return returnValues
-                    
+
+
 
     def getDomainPossible(self, index):
         return self.grille[index].getDomain()
@@ -339,5 +292,6 @@ class Grille :
 sudoku = Grille()
 sudoku.printSudoku()
 sudoku.backTracking()
+sudoku.printSudoku()
 #print(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1])
 #print(sudoku.getCaseConstraint(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1]))
