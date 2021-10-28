@@ -1,13 +1,13 @@
 import copy
 import math
 import time
-from Case import Case
+from Model.Case import *
 
 class Grille :
 
-    def __init__(self):
+    def __init__(self, taille):
        # Taille des sudoku
-        self.taille = 9
+        self.taille = taille
         self.length = self.taille*self.taille
         
         # Le sudoku
@@ -86,13 +86,13 @@ class Grille :
             if (currentDomainValue != float('inf')):
                 
                 if(self.forwardChecking(indexChosen, currentDomainValue)):
-                    self.grille[indexChosen].setValue(currentDomainValue)
+                    self.grille[indexChosen].setValue(currentDomainValue) #ajoute la valeur choisie par l'algorithme à la case en cours
                     x, y =self.getIndice(indexChosen)
-                    constraints = self.getCaseConstraint(x, y)
+                    constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
                     for constraint in constraints:
-                        self.grille[constraint].removeFromDomain(currentDomainValue)
+                        self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
                     self.printSudoku()
-                    result = self.backTracking()
+                    result = self.backTracking() #on appelle de nouveau la fonction backtracking
 
                     if (result != False):
                         return result
