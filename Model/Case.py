@@ -24,3 +24,9 @@ class Case :
     
     def getDomain(self):
         return copy.copy(self.domain)
+
+    def cleanDomain(self):
+        self.domain.clear()
+
+    def setDomain(self, _domain):
+        self.domain = _domain

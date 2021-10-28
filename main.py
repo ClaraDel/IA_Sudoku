@@ -32,6 +32,8 @@ def main():
         print("Sudoku de fin :")
         sudoku.printSudoku()
 
+        print("nombre d'appels à backtracking : ", sudoku.nbAppel)
+
 if __name__ == "__main__":
     main()
     

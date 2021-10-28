@@ -9,6 +9,8 @@ class Grille :
        # Taille des sudoku
         self.taille = taille
         self.length = self.taille*self.taille
+
+        self.nbAppel = 0
         
         # Le sudoku
         self.grille = []
@@ -23,7 +25,6 @@ class Grille :
 
         file = open('sudoku.txt', 'r')
         gridIndex = 0
-
         while 1:
             # read by character
             char = file.read(1)
@@ -33,11 +34,19 @@ class Grille :
 
             if (char != '\n'):
                 self.grille[gridIndex].setValue(int(char,10))
+                if (char != '0'):
+                    self.grille[gridIndex].cleanDomain()
                 gridIndex += 1
-        
         file.close()
         
-                
+        for i in range(self.length):
+            if self.grille[i].getValue() == 0:
+                x, y =self.getIndice(i)
+                constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui influencent la case en cours
+                for constraint in constraints:
+                    if self.grille[constraint].getValue() != 0:
+                        self.grille[i].removeFromDomain(self.grille[constraint].getValue())
+
 
     def printSudoku(self):
         for i in range(self.taille):
@@ -73,11 +82,16 @@ class Grille :
         if (self.checkCompletion()):
             return True
         
-        
+        self.nbAppel += 1
+
         # We get the index to explore
         indexChosen =  self.chooseIndex()
         
+        # Version LCV
         domainPossible = self.LCV(indexChosen)
+
+        # Version sans LCV
+        #domainPossible = self.domain
 
         for currentDomainValue in domainPossible:
         #for currentDomainValue in range(1, len(self.domain)+1):
@@ -87,12 +101,24 @@ class Grille :
                 if (currentDomainValue != float('inf')):
                     
                     if(self.AC3(indexChosen, currentDomainValue)):
+
                         self.grille[indexChosen].setValue(currentDomainValue) #ajoute la valeur choisie par l'algorithme à la case en cours
+                        
                         x, y =self.getIndice(indexChosen)
                         constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
+                        neighboursDomainModified = []
                         for constraint in constraints:
-                            self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
+                            if currentDomainValue in self.getDomainPossible(constraint):
+                                self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
+                                neighboursDomainModified.append(constraint)
                         #self.printSudoku()
+
+                        # On met en mémoire le domaine de la case avant de le mettre à 0
+                        caseDomain = self.getDomainPossible(indexChosen)
+
+                        # Le domaine de la case devient vide car on lui attribue une valeur
+                        self.grille[indexChosen].cleanDomain()
+
                         result = self.backTracking() #on appelle de nouveau la fonction backtracking
 
                         if (result != False):
@@ -100,10 +126,11 @@ class Grille :
 
                         # If it leads nowhere (failure), we put the value of the chosen index back to 0
                         self.grille[indexChosen].setValue(0)
-                        
-                        x, y =self.getIndice(indexChosen)
-                        constraints = self.getCaseConstraint(x, y)
-                        for constraint in constraints:
+
+                        # On remet le domaine que la case avait avant de lui mettre une valeur
+                        self.grille[indexChosen].setDomain(caseDomain)
+
+                        for constraint in neighboursDomainModified:
                             self.grille[constraint].addToDomain(currentDomainValue)
         
         return False
@@ -152,11 +179,18 @@ class Grille :
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
-        #self.printSudoku()
-        #print(self.degreeHeuristic()[0])
+
+        # Configuration pour tester degreeHeuristic seul
+        #list = []
         #for i in range(self.length):
-        #    if (self.grille[i].getValue() == 0):
-        #        return i
+          #  if (self.grille[i].getValue() == 0):
+           #     list.append(self.grille[i])
+
+        # Configuration pour tester LCV seul
+        #for i in range(self.length):
+         #   if (self.grille[i].getValue() == 0):
+          #      return i
+
         return self.degreeHeuristic(self.MRV())[0]
 
 
