@@ -23,6 +23,13 @@ class Grille :
             newCase = Case(0, copy.copy(self.domain))
             self.grille.append(newCase)
 
+        self.readSudokuFile()
+        self.initConstraints()
+
+        
+        
+        
+    def readSudokuFile(self):
         file = open('sudoku.txt', 'r')
         gridIndex = 0
         while 1:
@@ -38,7 +45,10 @@ class Grille :
                     self.grille[gridIndex].cleanDomain()
                 gridIndex += 1
         file.close()
-        
+
+
+
+    def initConstraints(self):
         for i in range(self.length):
             if self.grille[i].getValue() == 0:
                 x, y =self.getIndice(i)
@@ -46,6 +56,7 @@ class Grille :
                 for constraint in constraints:
                     if self.grille[constraint].getValue() != 0:
                         self.grille[i].removeFromDomain(self.grille[constraint].getValue())
+
 
 
     def printSudoku(self):
@@ -106,12 +117,16 @@ class Grille :
                         
                         x, y =self.getIndice(indexChosen)
                         constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
+                        
+                        #Liste des voisins dont le domaine sera modifié par l'ajout de currentDomainValue à indexChosen
                         neighboursDomainModified = []
+
                         for constraint in constraints:
-                            if currentDomainValue in self.getDomainPossible(constraint):
-                                self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
+
+                            #Est-ce que la valeur choisie est dans le domaine du voisin, si oui on la retire du domaine et on retient le voisin modifié
+                            if currentDomainValue in self.getDomainPossible(constraint): 
+                                self.grille[constraint].removeFromDomain(currentDomainValue)
                                 neighboursDomainModified.append(constraint)
-                        #self.printSudoku()
 
                         # On met en mémoire le domaine de la case avant de le mettre à 0
                         caseDomain = self.getDomainPossible(indexChosen)
@@ -130,6 +145,7 @@ class Grille :
                         # On remet le domaine que la case avait avant de lui mettre une valeur
                         self.grille[indexChosen].setDomain(caseDomain)
 
+                        # On remet comme avant le domaine des variables voisines si on l'avait modifié 
                         for constraint in neighboursDomainModified:
                             self.grille[constraint].addToDomain(currentDomainValue)
         
