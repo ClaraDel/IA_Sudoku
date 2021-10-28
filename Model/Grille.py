@@ -13,9 +13,6 @@ class Grille :
         # Le sudoku
         self.grille = []
         
-        # ???
-        self.nbRecurs = 0
-        
         # Domaine possible pour chaque variable
         self.domain = list(range(1,self.taille+1))
 
@@ -76,7 +73,6 @@ class Grille :
         if (self.checkCompletion()):
             return True
         
-        self.nbRecurs += 1
         
         # We get the index to explore
         indexChosen =  self.chooseIndex()
@@ -84,12 +80,13 @@ class Grille :
         domainPossible = self.LCV(indexChosen)
 
         for currentDomainValue in domainPossible:
+        #for currentDomainValue in range(1, len(self.domain)+1):
 
             if (self.checkConsistency(indexChosen, currentDomainValue)):
 
                 if (currentDomainValue != float('inf')):
                     
-                    if(self.forwardChecking(indexChosen, currentDomainValue)):
+                    if(self.AC3(indexChosen, currentDomainValue)):
                         self.grille[indexChosen].setValue(currentDomainValue) #ajoute la valeur choisie par l'algorithme à la case en cours
                         x, y =self.getIndice(indexChosen)
                         constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
@@ -157,6 +154,9 @@ class Grille :
     def chooseIndex(self):
         #self.printSudoku()
         #print(self.degreeHeuristic()[0])
+        #for i in range(self.length):
+        #    if (self.grille[i].getValue() == 0):
+        #        return i
         return self.degreeHeuristic(self.MRV())[0]
 
 
