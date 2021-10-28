@@ -1,7 +1,7 @@
 import copy
 import math
 import time
-from Case import *
+from Model.Case import *
 
 class Grille :
 
@@ -14,7 +14,7 @@ class Grille :
         self.grille = []
         
         # ???
-        self.domainsBrain = []
+        self.nbRecurs = 0
         
         # Domaine possible pour chaque variable
         self.domain = list(range(1,self.taille+1))
@@ -75,7 +75,9 @@ class Grille :
         # We check the completion of the sudoku
         if (self.checkCompletion()):
             return True
-
+        
+        self.nbRecurs += 1
+        
         # We get the index to explore
         indexChosen =  self.chooseIndex()
         
@@ -106,10 +108,6 @@ class Grille :
                         constraints = self.getCaseConstraint(x, y)
                         for constraint in constraints:
                             self.grille[constraint].addToDomain(currentDomainValue)
-                    else:
-                        #self.printSudoku()
-                        #print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
-                        return False
         
         return False
 
@@ -119,7 +117,7 @@ class Grille :
         i, j = self.getIndice(index)
         casesWithConstraint = self.getCaseConstraint(i, j)
         for case in casesWithConstraint:
-            domains = self.getDomainPossible(case)
+            domains = copy.copy(self.getDomainPossible(case))
             if(value in domains):
                 domains.remove(value)
             if(len(domains) == 0):
@@ -298,5 +296,6 @@ print("--------------------\n")
 sudoku.backTracking()
 print("Sudoku de fin :")
 sudoku.printSudoku()
+print(sudoku.nbRecurs)
 #print(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1])
 #print(sudoku.getCaseConstraint(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1]))
