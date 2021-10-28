@@ -8,6 +8,7 @@ def main():
     lancerJeu = False
     while(lancerJeu == False) :
         entree = int(input("Tapez 1 pour 4x4 \nTapez 2 pour 9x9\nTapez 3 pour 16x16\nTapez 4 pour quitter\n"))
+        print("Attention au sudoku de départ renseigné dans sudoku.txt en prenant la taille !")
         if(entree == 1):
             taille = 4
             lancerJeu = True
@@ -26,6 +27,7 @@ def main():
         sudoku = Grille(taille)
         sudoku.printSudoku()
         sudoku.backTracking()
+        sudoku.printSudoku()
 
 if __name__ == "__main__":
     main()

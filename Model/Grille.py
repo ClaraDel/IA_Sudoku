@@ -289,13 +289,13 @@ class Grille :
         return cases
 
 
-sudoku = Grille(9)
-print("\nSudoku de départ :")
-sudoku.printSudoku()
-print("--------------------\n")
-sudoku.backTracking()
-print("Sudoku de fin :")
-sudoku.printSudoku()
-print(sudoku.nbRecurs)
+#sudoku = Grille(9)
+#print("\nSudoku de départ :")
+#sudoku.printSudoku()
+#print("--------------------\n")
+#sudoku.backTracking()
+#print("Sudoku de fin :")
+#sudoku.printSudoku()
+#print(sudoku.nbRecurs)
 #print(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1])
 #print(sudoku.getCaseConstraint(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1]))
