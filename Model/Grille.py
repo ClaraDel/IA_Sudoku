@@ -1,7 +1,7 @@
 import copy
 import math
 import time
-from Model.Case import *
+from Case import *
 
 class Grille :
 
@@ -28,7 +28,6 @@ class Grille :
         gridIndex = 0
 
         while 1:
-     
             # read by character
             char = file.read(1)
 
@@ -36,7 +35,7 @@ class Grille :
                 break
 
             if (char != '\n'):
-                self.grille[gridIndex].setValue(char)
+                self.grille[gridIndex].setValue(int(char,10))
                 gridIndex += 1
         
         file.close()
@@ -77,37 +76,40 @@ class Grille :
         if (self.checkCompletion()):
             return True
 
-        # We get the list of index to explore
+        # We get the index to explore
         indexChosen =  self.chooseIndex()
         
         domainPossible = self.LCV(indexChosen)
+
         for currentDomainValue in domainPossible:
 
-            if (currentDomainValue != float('inf')):
-                
-                if(self.forwardChecking(indexChosen, currentDomainValue)):
-                    self.grille[indexChosen].setValue(currentDomainValue) #ajoute la valeur choisie par l'algorithme à la case en cours
-                    x, y =self.getIndice(indexChosen)
-                    constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
-                    for constraint in constraints:
-                        self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
-                    self.printSudoku()
-                    result = self.backTracking() #on appelle de nouveau la fonction backtracking
+            if (self.checkConsistency(indexChosen, currentDomainValue)):
 
-                    if (result != False):
-                        return result
-
-                    # If it leads nowhere (failure), we put the value of the chosen index back to 0
-                    self.grille[indexChosen].setValue(0)
+                if (currentDomainValue != float('inf')):
                     
-                    x, y =self.getIndice(indexChosen)
-                    constraints = self.getCaseConstraint(x, y)
-                    for constraint in constraints:
-                        self.grille[constraint].addToDomain(currentDomainValue)
-                else:
-                    self.printSudoku()
-                    print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
-                    return False
+                    if(self.forwardChecking(indexChosen, currentDomainValue)):
+                        self.grille[indexChosen].setValue(currentDomainValue) #ajoute la valeur choisie par l'algorithme à la case en cours
+                        x, y =self.getIndice(indexChosen)
+                        constraints = self.getCaseConstraint(x, y) #récupère les cases voisines qui sont influencées par la case en cours
+                        for constraint in constraints:
+                            self.grille[constraint].removeFromDomain(currentDomainValue) #on enlève la valeur aux domaines de toutes les cases voisines
+                        #self.printSudoku()
+                        result = self.backTracking() #on appelle de nouveau la fonction backtracking
+
+                        if (result != False):
+                            return result
+
+                        # If it leads nowhere (failure), we put the value of the chosen index back to 0
+                        self.grille[indexChosen].setValue(0)
+                        
+                        x, y =self.getIndice(indexChosen)
+                        constraints = self.getCaseConstraint(x, y)
+                        for constraint in constraints:
+                            self.grille[constraint].addToDomain(currentDomainValue)
+                    else:
+                        #self.printSudoku()
+                        #print("Index: " + str(self.getIndice(indexChosen)) + " value: " + str(currentDomainValue) + " will no be extended !")
+                        return False
         
         return False
 
@@ -121,7 +123,7 @@ class Grille :
             if(value in domains):
                 domains.remove(value)
             if(len(domains) == 0):
-                print(str(self.getIndice(case)) + " will be blocked !")
+                #print(str(self.getIndice(case)) + " will be blocked !")
                 return False
         return True
 
@@ -185,11 +187,11 @@ class Grille :
 
     def LCV(self, indexChosen):
         valueImpact = {}
-        print("case :",indexChosen )
+        #print("case :",indexChosen )
         
         #Parcours des valeurs possibles dans cette case
         for i in self.grille[indexChosen].getDomain():
-            print("value :",i )
+            #print("value :",i )
             # k est le nombre de voisin ayant la valeur dans leur domaine
             k=0
             
@@ -197,7 +199,7 @@ class Grille :
             # c-a-d le nombre de voisins que l'on va contraindre avec cette valeur
             for neighbour in self.getCaseConstraint(self.getIndice(indexChosen)[0],self.getIndice(indexChosen)[1]):
                 if self.grille[neighbour].getValue() == 0:
-                    print("voisin :",neighbour," domaine : ",self.grille[neighbour].getDomain())
+                    #print("voisin :",neighbour," domaine : ",self.grille[neighbour].getDomain())
                     if(i in self.grille[neighbour].getDomain()):
                         k+=1
             # Mise en mémoire
@@ -206,7 +208,7 @@ class Grille :
         # Envoie des valeurs possibles à partir des valeurs trouvées
         x = dict(sorted(valueImpact.items(), key=lambda item: item[1]))
         
-        print(x)
+        #print(x)
         return list(x.keys())
                     
 
@@ -289,9 +291,12 @@ class Grille :
         return cases
 
 
-sudoku = Grille()
+sudoku = Grille(9)
+print("\nSudoku de départ :")
 sudoku.printSudoku()
+print("--------------------\n")
 sudoku.backTracking()
+print("Sudoku de fin :")
 sudoku.printSudoku()
 #print(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1])
 #print(sudoku.getCaseConstraint(sudoku.getIndice(15)[0],sudoku.getIndice(15)[1]))
