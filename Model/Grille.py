@@ -196,18 +196,22 @@ class Grille :
 
     # We create a list of index to explore, sorted according to the heuristics
     def chooseIndex(self):
+        # Configuration pour tester degreeHeuristic seul
+        #return self.MRV()[0]
 
         # Configuration pour tester degreeHeuristic seul
         #list = []
         #for i in range(self.length):
           #  if (self.grille[i].getValue() == 0):
-           #     list.append(self.grille[i])
+           #     list.append(i)
+            #       return self.degreeHeuristic(list)[0]
 
-        # Configuration pour tester LCV seul
+        # Configuration sans MRV ni degreeHeuristic
         #for i in range(self.length):
          #   if (self.grille[i].getValue() == 0):
           #      return i
 
+        # configuration pour tester MRV avec degreeHeuristic
         return self.degreeHeuristic(self.MRV())[0]
 
 
