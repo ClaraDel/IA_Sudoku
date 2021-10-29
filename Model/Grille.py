@@ -157,12 +157,13 @@ class Grille :
         i, j = self.getIndice(index)
         casesWithConstraint = self.getCaseConstraint(i, j)
         for case in casesWithConstraint:
-            domains = copy.copy(self.getDomainPossible(case))
-            if(value in domains):
-                domains.remove(value)
-            if(len(domains) == 0):
-                #print(str(self.getIndice(case)) + " will be blocked !")
-                return False
+            if (self.grille[case].getValue() == 0):
+                domains = copy.copy(self.getDomainPossible(case))
+                if(value in domains):
+                    domains.remove(value)
+                if(len(domains) == 0):
+                    #print(str(self.getIndice(case)) + " will be blocked !")
+                    return False
         return True
 
     
